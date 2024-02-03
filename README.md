@@ -1,6 +1,6 @@
 # augment-it
 
-Twice the dataset, _same_ time for annotation!
+Twice the dataset, _same_ the time for annotation!
 
 ### Why?
 
