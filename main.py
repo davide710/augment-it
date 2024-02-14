@@ -12,7 +12,10 @@ def _resize(img): #for debug purposes
     return im
 
 def _draw(img, box): #testing
+    print(img.shape)
+    print(box)
     cv2.circle(img, (int(box[0] * img.shape[1]), int(box[1] * img.shape[0])), 10, (255, 0, 0), -1)
+    cv2.rectangle(img, (int(box[0] * img.shape[1] - box[2] * img.shape[1] / 2), int(box[1] * img.shape[0] - box[3] * img.shape[0] / 2)), (int(box[0] * img.shape[1] + box[2] * img.shape[1] / 2), int(box[1] * img.shape[0] + box[3] * img.shape[0] / 2)), (255, 0, 0), 4)
 
 def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True):
     for name in file_list:
@@ -62,17 +65,30 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True):
                     # A-----B
                     # |  C  |
                     # E-----D
-                    A = C + np.array([w, - h])
-                    B = C + np.array([-w, - h])
-                    D = C + np.array([-w, h])
-                    E = C + np.array([w, h])
-                    corners_rot = np.array([np.dot(matrix, P) for P in [A, B, D, E]])
+                    A = C + np.array([w, - h]) / 2
+                    B = C + np.array([-w, - h]) / 2
+                    D = C + np.array([-w, h]) / 2
+                    E = C + np.array([w, h]) / 2
+
+                    print('corners: ', A - O, B - O, D - O, E - O, ' center: ', C)
+                    print('matrix: ', matrix)
+
+                    corners_rot = np.array([np.dot(matrix, P - O) + O for P in [A, B, D, E]])
+                    print('corners_rot: ', corners_rot)
                     x_rot = [P[0] for P in corners_rot]
                     y_rot = [P[1] for P in corners_rot]
                     highest = corners_rot[np.argmax(y_rot)]
                     leftest = corners_rot[np.argmax(x_rot)]
-                    new_width = 2 * np.sqrt(np.dot((highest - C_rot), (highest - C_rot))) * np.sin(theta)
-                    new_height = 2 * np.sqrt(np.dot((leftest - C_rot), (leftest - C_rot))) * np.cos(theta)
+                    rightest = corners_rot[np.argmax(-np.array(x_rot))]
+                    lowest = corners_rot[np.argmax(-np.array(y_rot))]
+                    print(highest, lowest, leftest, rightest)
+                    #new_width = 2 * np.sqrt(np.dot((highest - C_rot), (highest - C_rot))) * np.sin(theta)
+                    #new_height = 2 * np.sqrt(np.dot((leftest - C_rot), (leftest - C_rot))) * np.cos(theta)
+                    new_width = np.abs(highest[1] - lowest[1])
+                    new_height = np.abs(rightest[0] - leftest[0])
+                    for c in corners_rot:
+                        
+                        cv2.circle(rotated, (int(-c[0] * 259), int(c[1] * 194)), 10, (0, 255, 0), -1)
                     _draw(rotated, [new_center[0], new_center[1], new_width, new_height])
                     cv2.imshow('r', rotated)
                     f.write(f'{cl} {new_center[0]} {new_center[1]} {new_width} {new_height}')
@@ -82,5 +98,6 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True):
 rotation(['image00003.jpeg'])
 im = cv2.imread('image00003.jpeg')
 cv2.waitKey(0)
+
 
 
