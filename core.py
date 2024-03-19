@@ -18,6 +18,10 @@ def _draw(img, box): #testing
     cv2.rectangle(img, (int(box[0] * img.shape[1] - box[2] * img.shape[1] / 2), int(box[1] * img.shape[0] - box[3] * img.shape[0] / 2)), (int(box[0] * img.shape[1] + box[2] * img.shape[1] / 2), int(box[1] * img.shape[0] + box[3] * img.shape[0] / 2)), (255, 0, 0), 4)
 
 def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True, rotate_bbox=False):
+    dir = os.path.join(os.getcwd(), 'rotated')
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+
     for name in file_list:
         img = cv2.imread(f"{name}")
         rows, cols = img.shape[:2]
@@ -36,6 +40,7 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True, rotat
         matrix = cv2.getRotationMatrix2D(O, angle, 1)
         rotated = cv2.warpAffine(img, matrix, (cols, rows))
 #        rescaled = cv2.resize(rotated, (cols, rows), interpolation = cv2.INTER_AREA)
+        cv2.imwrite(f"rotated/{name.split('.')[0]}_rot.jpg", rotated)
 
         if make_annotations:
             ann_file = f"{name.split('.')[0]}.txt"
@@ -50,7 +55,7 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True, rotat
                     cv2.imshow('', img)
 
             
-            new_ann_file = f"{name.split('.')[0]}_rot.txt"
+            new_ann_file = f"rotated/{name.split('.')[0]}_rot.txt"
             with open(new_ann_file, 'w') as f:
                 for cl, box in zip(classes, boxes):
                     ox, oy, w, h = box
@@ -72,20 +77,14 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True, rotat
                         D = C + np.array([-w, h]) / 2
                         E = C + np.array([w, h]) / 2
 
-                        print('corners: ', A - O, B - O, D - O, E - O, ' center: ', C)
-                        print('matrix: ', matrix)
-
                         corners_rot = np.array([np.dot(matrix, P - O) + O for P in [A, B, D, E]])
-                        print('corners_rot: ', corners_rot)
                         x_rot = [P[0] for P in corners_rot]
                         y_rot = [P[1] for P in corners_rot]
                         highest = corners_rot[np.argmax(y_rot)]
                         leftest = corners_rot[np.argmax(x_rot)]
                         rightest = corners_rot[np.argmax(-np.array(x_rot))]
                         lowest = corners_rot[np.argmax(-np.array(y_rot))]
-                        print(highest, lowest, leftest, rightest)
-                        #new_width = 2 * np.sqrt(np.dot((highest - C_rot), (highest - C_rot))) * np.sin(theta)
-                        #new_height = 2 * np.sqrt(np.dot((leftest - C_rot), (leftest - C_rot))) * np.cos(theta)
+
                         new_width = np.abs(highest[1] - lowest[1])
                         new_height = np.abs(rightest[0] - leftest[0])
                         for c in corners_rot:
@@ -99,7 +98,12 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True, rotat
                     cv2.imshow('r', rotated)
                     f.write(f'{cl} {new_center[0]} {new_center[1]} {new_width} {new_height}')
 
+
 def change_brightness_contrast(file_list, min_alpha=0.5, max_alpha=1.5, min_beta=0.5, max_beta=0.5, make_annotations=True):
+    dir = os.path.join(os.getcwd(), 'br_and_con')
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+
     for impath in file_list:
         img = cv2.imread(impath)
         alpha = np.random.uniform(min_alpha, max_alpha)
@@ -108,17 +112,11 @@ def change_brightness_contrast(file_list, min_alpha=0.5, max_alpha=1.5, min_beta
         cv2.imwrite(f"br_and_con/{impath.split('.')[0]}_bc.jpg", bc)
         
         if make_annotations:
-            ann_file = f"{impath.split('.')[0]}.txt"
+            ann_file = f"br_and_con/{impath.split('.')[0]}.txt"
             new_ann_file = f"{impath.split('.')[0]}_bc.txt"
             with open(ann_file, 'r') as old:
                     with open(new_ann_file, 'w') as new:
                         content = old.read()
                         new.write(content)                
-
-
-rotation(['image00003.jpeg'])
-im = cv2.imread('image00003.jpeg')
-cv2.waitKey(0)
-
 
 
