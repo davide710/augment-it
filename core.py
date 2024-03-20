@@ -1,3 +1,5 @@
+# the problem is with rotations that "mix" dimensions, since the .txt measures in fraction of each axis
+
 import cv2
 import numpy as np
 import os
@@ -72,8 +74,8 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True, rotat
                         # A-----B
                         # |  C  |
                         # E-----D
-                        A = C + np.array([w, - h]) / 2
-                        B = C + np.array([-w, - h]) / 2
+                        A = C + np.array([w, -h]) / 2
+                        B = C + np.array([-w, -h]) / 2
                         D = C + np.array([-w, h]) / 2
                         E = C + np.array([w, h]) / 2
                         _draw(img, [C[0], C[1], w, h])
@@ -84,7 +86,7 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True, rotat
                         cv2.circle(img, (int(-D[0] * cols), int(D[1] * rows)), 10, (0, 255, 0), -1)
                         cv2.imshow('test', img)
 
-                        corners_rot = np.array([np.dot(matrix, P - O) + O for P in [A, B, D, E]])
+                        corners_rot = np.array([np.dot(matrix, P - O) + O for P in [A]])
                         x_rot = [P[0] for P in corners_rot]
                         y_rot = [P[1] for P in corners_rot]
                         highest = corners_rot[np.argmax(y_rot)]
@@ -95,14 +97,15 @@ def rotation(file_list, min_angle=5, max_angle=355, make_annotations=True, rotat
                         new_height = np.abs(highest[1] - lowest[1])
                         new_width = np.abs(rightest[0] - leftest[0])
                         for c in corners_rot:
+                            print('hi')
                             cv2.circle(rotated, (int(-c[0] * cols), int(c[1] * rows)), 10, (0, 255, 0), -1)
 
                     else:
                         new_width = w
                         new_height = h
 
-                    _draw(rotated, [new_center[0], new_center[1], np.min([new_width, 1]), np.min([new_height, 1])])
-                    print('----', [new_center[0], new_center[1], np.min([new_width, 1]), np.min([new_height, 1])])
+                    _draw(rotated, [new_center[0], new_center[1], np.min([new_width, 2 * (1 - new_center[0]), 2 * new_center[0]]), np.min([new_height, 2 * (1 - new_center[1]), 2 * new_center[1]])])
+                    print('----', [new_center[0], new_center[1], np.min([new_width, 2 * (1 - new_center[0]), 2 * new_center[0]]), np.min([new_height, 2 * (1 - new_center[1]), 2 * new_center[1]])])
                     cv2.imshow('r', rotated)
                     cv2.waitKey(0)
                     f.write(f'{cl} {new_center[0]} {new_center[1]} {new_width} {new_height}')
