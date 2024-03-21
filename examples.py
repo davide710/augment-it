@@ -1,5 +1,6 @@
 import cv2
 from core import rotation, change_brightness_contrast
+from rotation import rotate
 import os
 
 files_list = os.listdir('resources/images_and_annotations')
@@ -10,4 +11,6 @@ circles = [impath for impath in images_list if int(impath.split('.')[0][-3:]) < 
 rectangles = [impath for impath in images_list if int(impath.split('.')[0][-3:]) > 300]
 
 #rotation(circles, rotate_bbox=False)
-rotation(rectangles, rotate_bbox=True)
+#rotation(rectangles, rotate_bbox=True)
+
+rotate(rectangles, rotate_bbox=True)
