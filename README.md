@@ -20,6 +20,7 @@ cd augment-it
 pip install numpy opencv-contrib-python
 ```
 You can see a demo of how the code works by running `python3 demo.py`. This shows how the images (data I used for an actual object detection model) are rotated and how the bounding box automatically follows the object thanks to the magic of linear algebra. 
+
 ![original image](https://github.com/davide710/augment-it/assets/106482229/8c8181ff-c703-4a01-9911-e1048ef7e922)
 ![rotated image and box](https://github.com/davide710/augment-it/assets/106482229/9c50211b-3b6e-418f-a31e-e33bf6596cf6)
 
