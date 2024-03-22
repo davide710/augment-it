@@ -12,7 +12,7 @@ def _resize(img): #for debug purposes
     return im
 
 def _draw(img, box): #testing
-    cv2.circle(img, (int(box[0] * img.shape[1]), int(box[1] * img.shape[0])), 10, (255, 0, 0), -1)
+    cv2.circle(img, (int(box[0] * img.shape[1]), int(box[1] * img.shape[0])), 5, (255, 0, 0), -1)
     cv2.rectangle(img, (int(box[0] * img.shape[1] - box[2] * img.shape[1] / 2), int(box[1] * img.shape[0] - box[3] * img.shape[0] / 2)), (int(box[0] * img.shape[1] + box[2] * img.shape[1] / 2), int(box[1] * img.shape[0] + box[3] * img.shape[0] / 2)), (255, 0, 0), 4)
 
 def rotate_point(imshape, old_P, angle):
@@ -52,8 +52,8 @@ def rotate_bounding_box(img, rotated, old_box, C, angle, debug):
     new_c = np.array([leftest[0] + (rightest[0] - leftest[0]) / 2, highest[1] + (lowest[1] - highest[1]) / 2])
     if debug:
         for c in corners_rot:
-            cv2.circle(rotated, c.astype(np.int32), 10, (0, 255, 0), -1)
-        cv2.circle(rotated, new_c.astype(np.int32), 15, (0, 200, 0), -1)
+            cv2.circle(rotated, c.astype(np.int32), 5, (0, 255, 0), -1)
+        #cv2.circle(rotated, new_c.astype(np.int32), 15, (0, 200, 0), -1)
     new_center = np.array([new_c[0] / xmax, new_c[1] / ymax])
     return new_center, new_width, new_height
 

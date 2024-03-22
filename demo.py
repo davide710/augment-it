@@ -10,6 +10,6 @@ images_list = [impath for impath in paths_list if impath.split('.')[-1] != 'txt'
 circles = [impath for impath in images_list if int(impath.split('.')[0][-3:]) < 300]
 rectangles = [impath for impath in images_list if int(impath.split('.')[0][-3:]) > 300]
 
-rotate(circles, rotate_bbox=True, debug=True)
+rotate(circles, rotate_bbox=False, debug=True)
 rotate(rectangles, rotate_bbox=True, debug=True)
 change_brightness_contrast(images_list)
